@@ -3,603 +3,1568 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>档案 · 个人主页</title>
-    <!-- Font Awesome 6 (免费图标库) -->
+    <title>WhiteZero 网盘</title>
+    <!-- Font Awesome 图标库 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <style>
-        /* ===== 全局重置 & 基础 ===== */
+        /* ========== 全局重置 & 基础 ========== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
+        :root {
+            --primary: #4f6ef7;
+            --primary-dark: #3a56d4;
+            --primary-light: #e8ecff;
+            --bg: #f5f7fb;
+            --card-bg: #ffffff;
+            --text: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+            --radius-sm: 8px;
+            --transition: 0.25s ease;
+            --sidebar-width: 220px;
+            --header-height: 60px;
+        }
+        html,
         body {
-            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: #0b0d15;
-            padding: 1.5rem;
-            /* 动态渐变背景 */
-            background: radial-gradient(ellipse at 20% 50%, #0f172a 0%, #020617 100%);
-            position: relative;
-            overflow-x: hidden;
-        }
-
-        /* ===== 动态粒子画布 (背景) ===== */
-        #particles-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
             height: 100%;
-            z-index: 0;
-            pointer-events: none;
-            /* 让鼠标事件穿透 */;
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            font-size: 14px;
+            line-height: 1.5;
         }
-
-        /* ===== 主卡片容器 ===== */
-        .profile-card {
-            position: relative;
-            z-index: 1;
-            max-width: 880px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(24px) saturate(180%);
-            -webkit-backdrop-filter: blur(24px) saturate(180%);
-            border-radius: 3.5rem;
-            padding: 3rem 3.2rem;
-            box-shadow:
-                0 40px 80px rgba(0, 0, 0, 0.7),
-                inset 0 1px 0 rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: transform 0.3s ease, box-shadow 0.4s ease;
-            animation: cardFloat 6s ease-in-out infinite;
-        }
-
-        @keyframes cardFloat {
-            0%,
-            100% {
-                transform: translateY(0px);
-            }
-            50% {
-                transform: translateY(-8px);
-            }
-        }
-
-        /* ===== 头像区域 ===== */
-        .avatar-wrapper {
-            display: flex;
-            align-items: center;
-            gap: 2rem;
-            flex-wrap: wrap;
-            margin-bottom: 2.2rem;
-        }
-
-        .avatar {
-            position: relative;
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.35);
-            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .avatar:hover {
-            transform: scale(1.05) rotate(-2deg);
-        }
-
-        .avatar img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 50%;
-            border: 3px solid rgba(255, 255, 255, 0.15);
-        }
-
-        /* 如果没有图片，用文字占位 */
-        .avatar .initials {
-            font-size: 3.2rem;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-            user-select: none;
-        }
-
-        .avatar-badge {
-            position: absolute;
-            bottom: 4px;
-            right: 4px;
-            background: #10b981;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 3px solid #0b0d15;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.7rem;
-            color: #fff;
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
-        }
-
-        /* ===== 标题信息 ===== */
-        .title-group h1 {
-            font-size: 2.6rem;
-            font-weight: 700;
-            color: #ffffff;
-            letter-spacing: -0.02em;
-            line-height: 1.2;
-            margin-bottom: 0.3rem;
-        }
-
-        .title-group .tagline {
-            display: inline-block;
-            font-size: 1rem;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.5);
-            background: rgba(255, 255, 255, 0.06);
-            padding: 0.35rem 1.2rem;
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(4px);
-            letter-spacing: 0.3px;
-        }
-
-        .title-group .tagline i {
-            margin-right: 6px;
-            color: #8b5cf6;
-        }
-
-        /* ===== 分隔装饰 ===== */
-        .divider {
-            width: 60px;
-            height: 3px;
-            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
-            border-radius: 6px;
-            margin: 1.6rem 0 1.8rem 0;
-            opacity: 0.7;
-        }
-
-        /* ===== 简介 ===== */
-        .bio {
-            font-size: 1.08rem;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, 0.7);
-            max-width: 580px;
-            margin-bottom: 2.2rem;
-            font-weight: 400;
-        }
-
-        .bio strong {
-            color: #ffffff;
-            font-weight: 600;
-        }
-
-        /* ===== 技能标签 ===== */
-        .skills {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.6rem 0.9rem;
-            margin-bottom: 2.6rem;
-        }
-
-        .skills span {
-            font-size: 0.8rem;
-            font-weight: 500;
-            padding: 0.4rem 1.2rem;
-            border-radius: 40px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.07);
-            color: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(4px);
-            transition: all 0.25s ease;
-            letter-spacing: 0.2px;
-        }
-
-        .skills span:hover {
-            background: rgba(139, 92, 246, 0.18);
-            border-color: rgba(139, 92, 246, 0.3);
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
-        }
-
-        /* ===== 社交链接 ===== */
-        .social-links {
-            display: flex;
-            align-items: center;
-            gap: 1.2rem;
-            flex-wrap: wrap;
-            margin-bottom: 1.8rem;
-        }
-
-        .social-links a {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 1.2rem;
+        a {
+            color: var(--primary);
             text-decoration: none;
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            backdrop-filter: blur(4px);
+        }
+        button {
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 14px;
+            border: none;
+            background: none;
+            color: inherit;
+        }
+        input {
+            font-family: inherit;
+            font-size: 14px;
+            border: none;
+            outline: none;
+            background: none;
+            color: inherit;
         }
 
-        .social-links a:hover {
-            background: rgba(255, 255, 255, 0.08);
-            color: #ffffff;
-            transform: translateY(-4px) scale(1.05);
-            border-color: rgba(255, 255, 255, 0.15);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        /* ========== 滚动条 ========== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
         }
 
-        .social-links a .label {
-            display: none;
-        }
-
-        /* 个别品牌颜色 (悬浮时) */
-        .social-links a:hover .fa-github {
-            color: #f0f6fc;
-        }
-        .social-links a:hover .fa-twitter {
-            color: #1d9bf0;
-        }
-        .social-links a:hover .fa-linkedin-in {
-            color: #0a66c2;
-        }
-        .social-links a:hover .fa-instagram {
-            color: #e4405f;
-        }
-        .social-links a:hover .fa-youtube {
-            color: #ff0000;
-        }
-
-        /* ===== 底部信息 ===== */
-        .footer-meta {
+        /* ========== 布局容器 ========== */
+        #app {
             display: flex;
-            justify-content: space-between;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ========== 侧边栏 ========== */
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--card-bg);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 16px;
+            flex-shrink: 0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+        }
+        .sidebar .logo {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--primary);
+            display: flex;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            margin-top: 1.2rem;
-            padding-top: 1.6rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.04);
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.25);
+            gap: 10px;
+            margin-bottom: 32px;
+            padding-left: 4px;
+            letter-spacing: -0.3px;
+        }
+        .sidebar .logo i {
+            font-size: 26px;
+        }
+        .sidebar .user-info {
+            padding: 12px 14px;
+            background: var(--primary-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar .user-info .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        .sidebar .user-info .name {
+            font-weight: 600;
+            font-size: 14px;
+            flex: 1;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .sidebar .user-info .role {
+            font-size: 11px;
+            color: var(--text-secondary);
+            background: rgba(79, 110, 247, 0.12);
+            padding: 2px 10px;
+            border-radius: 20px;
+        }
+        .sidebar nav {
+            flex: 1;
+        }
+        .sidebar nav a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: var(--text-secondary);
+            transition: var(--transition);
+            margin-bottom: 2px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .sidebar nav a:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .sidebar nav a.active {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .sidebar nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+        .sidebar .logout-btn {
+            margin-top: auto;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            color: #ef4444;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .sidebar .logout-btn:hover {
+            background: #fef2f2;
+            border-color: #fca5a5;
+        }
+        .sidebar .logout-btn i {
+            width: 20px;
+            text-align: center;
         }
 
-        .footer-meta .location i {
-            margin-right: 6px;
-            color: rgba(255, 255, 255, 0.2);
+        /* ========== 主区域 ========== */
+        .main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            height: 100vh;
+            overflow: hidden;
         }
 
-        .footer-meta .status {
+        /* ========== 顶栏 ========== */
+        .header {
+            height: var(--header-height);
+            background: var(--card-bg);
+            border-bottom: 1px solid var(--border);
+            padding: 0 28px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .header .breadcrumb {
+            font-weight: 500;
             display: flex;
             align-items: center;
             gap: 8px;
+            color: var(--text-secondary);
+        }
+        .header .breadcrumb span {
+            color: var(--text);
+        }
+        .header .breadcrumb i {
+            font-size: 12px;
+        }
+        .header .actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .header .actions button {
+            padding: 7px 16px;
+            border-radius: var(--radius-sm);
+            font-weight: 500;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--primary);
+            color: #fff;
+        }
+        .header .actions button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(79, 110, 247, 0.35);
+        }
+        .header .actions button.secondary {
+            background: var(--bg);
+            color: var(--text-secondary);
+        }
+        .header .actions button.secondary:hover {
+            background: var(--border);
+            color: var(--text);
+            transform: none;
+            box-shadow: none;
+        }
+        .header .actions button i {
+            font-size: 15px;
         }
 
-        .status-dot {
-            display: inline-block;
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: #10b981;
-            animation: pulseDot 2s ease-in-out infinite;
+        /* ========== 文件列表 ========== */
+        .file-area {
+            flex: 1;
+            padding: 20px 28px 28px;
+            overflow-y: auto;
+            background: var(--bg);
+        }
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 16px;
+        }
+        .file-card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 16px 14px 14px;
+            box-shadow: var(--shadow);
+            transition: var(--transition);
+            border: 1px solid transparent;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: default;
+        }
+        .file-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+        }
+        .file-card .icon {
+            font-size: 44px;
+            color: var(--primary);
+            margin-bottom: 8px;
+            height: 54px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .file-card .icon.folder {
+            color: #f59e0b;
+        }
+        .file-card .name {
+            font-weight: 500;
+            font-size: 13px;
+            word-break: break-all;
+            max-width: 100%;
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+        .file-card .meta {
+            font-size: 11px;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        .file-card .file-actions {
+            display: flex;
+            gap: 6px;
+            width: 100%;
+            justify-content: center;
+            margin-top: 4px;
+        }
+        .file-card .file-actions button {
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: var(--transition);
+            background: var(--bg);
+            color: var(--text-secondary);
+        }
+        .file-card .file-actions button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .file-card .file-actions button.danger:hover {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+        .empty-state i {
+            font-size: 56px;
+            margin-bottom: 16px;
+            color: var(--border);
+        }
+        .empty-state p {
+            font-size: 15px;
         }
 
-        @keyframes pulseDot {
-            0%,
-            100% {
-                opacity: 1;
-                transform: scale(1);
-            }
-            50% {
-                opacity: 0.4;
-                transform: scale(0.85);
-            }
+        /* ========== 登录页面 ========== */
+        .login-page {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background: linear-gradient(145deg, #eef2ff, #f8fafc);
+            padding: 20px;
+        }
+        .login-box {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            padding: 40px 36px 36px;
+            width: 100%;
+            max-width: 380px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.08);
+            border: 1px solid var(--border);
+        }
+        .login-box .logo {
+            text-align: center;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .login-box .sub {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 13px;
+            margin-bottom: 28px;
+        }
+        .login-box .form-group {
+            margin-bottom: 18px;
+        }
+        .login-box .form-group label {
+            display: block;
+            font-weight: 500;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: var(--text-secondary);
+        }
+        .login-box .form-group input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            transition: var(--transition);
+            font-size: 14px;
+        }
+        .login-box .form-group input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(79, 110, 247, 0.15);
+            background: #fff;
+        }
+        .login-box .login-btn {
+            width: 100%;
+            padding: 11px;
+            border-radius: var(--radius-sm);
+            background: var(--primary);
+            color: #fff;
+            font-weight: 600;
+            font-size: 15px;
+            transition: var(--transition);
+            margin-top: 6px;
+        }
+        .login-box .login-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 16px rgba(79, 110, 247, 0.35);
+        }
+        .login-box .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .login-box .error-msg {
+            color: #ef4444;
+            font-size: 13px;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 20px;
+        }
+        .login-box .register-disabled {
+            text-align: center;
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border);
         }
 
-        /* ===== 响应式 ===== */
-        @media (max-width: 700px) {
-            .profile-card {
-                padding: 2rem 1.6rem;
-                border-radius: 2.4rem;
-            }
-            .avatar-wrapper {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 1.2rem;
-            }
-            .avatar {
-                width: 96px;
-                height: 96px;
-            }
-            .avatar .initials {
-                font-size: 2.6rem;
-            }
-            .title-group h1 {
-                font-size: 2rem;
-            }
-            .bio {
-                font-size: 0.98rem;
-            }
-            .social-links a {
-                width: 42px;
-                height: 42px;
-                font-size: 1rem;
-            }
-            .footer-meta {
-                flex-direction: column;
-                align-items: flex-start;
-            }
+        /* ========== 管理员面板 ========== */
+        .admin-panel {
+            padding: 0 28px 28px;
+            flex: 1;
+            overflow-y: auto;
         }
-
-        @media (max-width: 450px) {
-            .profile-card {
-                padding: 1.6rem 1.2rem;
-            }
-            .skills span {
-                font-size: 0.7rem;
-                padding: 0.3rem 0.9rem;
-            }
-            .title-group h1 {
-                font-size: 1.6rem;
-            }
+        .admin-panel .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-top: 8px;
         }
-
-        /* ===== 滚动条美化 (可选) ===== */
-        ::-webkit-scrollbar {
-            width: 6px;
-            background: #0b0d15;
+        .admin-panel .admin-header h2 {
+            font-size: 20px;
+            font-weight: 600;
         }
-        ::-webkit-scrollbar-thumb {
-            background: #2a2f45;
+        .admin-panel .admin-header .badge {
+            font-size: 12px;
+            background: var(--primary-light);
+            color: var(--primary);
+            padding: 4px 14px;
             border-radius: 20px;
+            font-weight: 500;
         }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #4b4f6a;
+        .user-table-wrap {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: auto;
+            border: 1px solid var(--border);
+        }
+        .user-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+        .user-table th {
+            background: var(--bg);
+            text-align: left;
+            padding: 12px 18px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+        .user-table td {
+            padding: 11px 18px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .user-table tr:last-child td {
+            border-bottom: none;
+        }
+        .user-table .user-actions {
+            display: flex;
+            gap: 6px;
+        }
+        .user-table .user-actions button {
+            padding: 3px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            background: var(--bg);
+            color: var(--text-secondary);
+            transition: var(--transition);
+        }
+        .user-table .user-actions button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+        .user-table .user-actions button.danger:hover {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+        .user-table .status-badge {
+            display: inline-block;
+            padding: 2px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        .user-table .status-badge.inactive {
+            background: #fef2f2;
+            color: #ef4444;
+        }
+
+        /* ========== 上传进度条 ========== */
+        .upload-overlay {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.15);
+            border: 1px solid var(--border);
+            padding: 16px 20px;
+            min-width: 260px;
+            max-width: 360px;
+            z-index: 999;
+            display: none;
+        }
+        .upload-overlay.active {
+            display: block;
+        }
+        .upload-overlay .title {
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .upload-overlay .title .close {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .upload-overlay .progress-bar {
+            height: 4px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 6px 0 10px;
+        }
+        .upload-overlay .progress-bar .fill {
+            height: 100%;
+            width: 0%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .upload-overlay .file-name {
+            font-size: 13px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .upload-overlay .status-text {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-top: 4px;
+        }
+
+        /* ========== Toast 通知 ========== */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-width: 360px;
+            width: 100%;
+        }
+        .toast {
+            background: var(--card-bg);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+            border-left: 4px solid var(--primary);
+            animation: slideIn 0.35s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 13px;
+        }
+        .toast.error {
+            border-left-color: #ef4444;
+        }
+        .toast.success {
+            border-left-color: #22c55e;
+        }
+        .toast.warning {
+            border-left-color: #f59e0b;
+        }
+        .toast .toast-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+        .toast .toast-msg {
+            flex: 1;
+        }
+        .toast .toast-close {
+            color: var(--text-secondary);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 0 4px;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* ========== 响应式 ========== */
+        @media (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .header {
+                padding: 0 16px;
+            }
+            .file-area {
+                padding: 12px 16px 20px;
+            }
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 12px;
+            }
+            .login-box {
+                padding: 28px 20px;
+            }
+            .admin-panel {
+                padding: 0 16px 20px;
+            }
+            .admin-panel .admin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            .user-table-wrap {
+                overflow-x: auto;
+            }
+            .upload-overlay {
+                left: 16px;
+                right: 16px;
+                bottom: 16px;
+                min-width: unset;
+                max-width: unset;
+            }
+            .header .actions button span {
+                display: none;
+            }
+            .header .actions button {
+                padding: 7px 12px;
+            }
+        }
+        @media (max-width: 480px) {
+            .file-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 10px;
+            }
+            .file-card {
+                padding: 12px 10px;
+            }
+            .file-card .icon {
+                font-size: 34px;
+                height: 42px;
+            }
+        }
+
+        /* ========== 实用工具 ========== */
+        .hidden {
+            display: none !important;
+        }
+        .flex-center {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gap-8 {
+            gap: 8px;
+        }
+        .text-center {
+            text-align: center;
+        }
+        .mt-8 {
+            margin-top: 8px;
+        }
+        .w-full {
+            width: 100%;
+        }
+        .truncate {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        /* 加载动画 */
+        .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid var(--border);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 管理员进入按钮 */
+        .admin-entry {
+            margin-top: 12px;
+            padding: 8px 14px;
+            border-radius: var(--radius-sm);
+            background: var(--bg);
+            color: var(--text-secondary);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+        .admin-entry:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+            border-color: var(--primary);
         }
     </style>
 </head>
 <body>
+    <!-- ============================================ -->
+    <!-- 主应用容器 -->
+    <!-- ============================================ -->
+    <div id="app">
 
-    <!-- ===== 动态粒子背景 (Canvas) ===== -->
-    <canvas id="particles-canvas"></canvas>
+        <!-- ===== 登录页面 ===== -->
+        <div id="loginPage" class="login-page">
+            <div class="login-box">
+                <div class="logo"><i class="fas fa-cloud"></i> WhiteZero</div>
+                <div class="sub">安全 · 高效的私有网盘</div>
+                <form id="loginForm" autocomplete="off">
+                    <div class="form-group">
+                        <label for="loginUser">用户名</label>
+                        <input type="text" id="loginUser" placeholder="请输入用户名" required />
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPass">密码</label>
+                        <input type="password" id="loginPass" placeholder="请输入密码" required />
+                    </div>
+                    <button type="submit" class="login-btn" id="loginBtn">
+                        <i class="fas fa-sign-in-alt"></i> 登 录
+                    </button>
+                    <div class="error-msg" id="loginError"></div>
+                    <div class="register-disabled">
+                        <i class="fas fa-lock"></i> 新用户注册已关闭（管理员邀请制）
+                    </div>
+                </form>
+            </div>
+        </div>
 
-    <!-- ===== 主卡片 ===== -->
-    <div class="profile-card">
+        <!-- ===== 主界面（登录后） ===== -->
+        <div id="mainApp" class="hidden" style="display:flex;height:100vh;width:100%;">
 
-        <!-- 头像 + 名称 -->
-        <div class="avatar-wrapper">
-            <div class="avatar">
-                <!-- 用首字母占位 (也可替换为 <img src="avatar.jpg" alt="头像" />) -->
-                <span class="initials">K</span>
-                <div class="avatar-badge">
-                    <i class="fas fa-check"></i>
+            <!-- 侧边栏 -->
+            <aside class="sidebar" id="sidebar">
+                <div class="logo"><i class="fas fa-cloud-upload-alt"></i> WhiteZero</div>
+                <div class="user-info">
+                    <div class="avatar" id="avatarLetter">U</div>
+                    <div class="name" id="sidebarUsername">用户</div>
+                    <div class="role" id="sidebarRole">用户</div>
+                </div>
+                <nav>
+                    <a class="active" data-view="files"><i class="fas fa-folder-open"></i> 我的文件</a>
+                    <a data-view="admin" id="adminNavLink" class="hidden"><i class="fas fa-cog"></i> 管理后台</a>
+                </nav>
+                <div class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> 退出登录</div>
+            </aside>
+
+            <!-- 主内容 -->
+            <div class="main">
+
+                <!-- 顶栏 -->
+                <header class="header">
+                    <div class="breadcrumb">
+                        <i class="fas fa-home"></i> <span id="breadcrumbPath">我的文件</span>
+                    </div>
+                    <div class="actions">
+                        <button id="uploadBtn" title="上传文件"><i class="fas fa-upload"></i> <span>上传</span></button>
+                        <button id="newFolderBtn" class="secondary" title="新建文件夹"><i class="fas fa-folder-plus"></i> <span>新建</span></button>
+                        <button id="refreshBtn" class="secondary" title="刷新"><i class="fas fa-sync-alt"></i></button>
+                    </div>
+                </header>
+
+                <!-- 文件区域 -->
+                <div class="file-area" id="fileArea">
+                    <div class="file-grid" id="fileGrid">
+                        <!-- 由 JS 动态渲染 -->
+                    </div>
+                </div>
+
+                <!-- 管理后台 (隐藏) -->
+                <div class="admin-panel hidden" id="adminPanel">
+                    <div class="admin-header">
+                        <h2><i class="fas fa-users-cog"></i> 用户管理</h2>
+                        <span class="badge"><i class="fas fa-lock"></i> 注册已关闭</span>
+                    </div>
+                    <div class="user-table-wrap">
+                        <table class="user-table">
+                            <thead>
+                                <tr>
+                                    <th>用户名</th>
+                                    <th>角色</th>
+                                    <th>状态</th>
+                                    <th>操作</th>
+                                </tr>
+                            </thead>
+                            <tbody id="userTableBody">
+                                <!-- 由 JS 渲染 -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="margin-top:16px;font-size:13px;color:var(--text-secondary);">
+                        <i class="fas fa-info-circle"></i> 管理员可重置用户密码或删除用户。
+                    </div>
                 </div>
             </div>
-            <div class="title-group">
-                <h1>whitezero</h1>
-                <span class="tagline">
-                    <i class="fas fa-code"></i> 全栈 · 创意开发者
-                </span>
-            </div>
         </div>
-
-        <!-- 分隔线 -->
-        <div class="divider"></div>
-
-        <!-- 简介 -->
-        <div class="bio">
-            构建 <strong>数字体验</strong> 与 <strong>交互艺术</strong>。<br />
-            热爱 TypeScript、Rust 与 3D 视觉。现居上海，自由职业。
-        </div>
-
-        <!-- 技能标签 -->
-        <div class="skills">
-            <span>React</span>
-            <span>Next.js</span>
-            <span>TypeScript</span>
-            <span>Rust</span>
-            <span>Three.js</span>
-            <span>Tailwind</span>
-            <span>Figma</span>
-            <span>WebGL</span>
-        </div>
-
-        <!-- 社交链接 -->
-        <div class="social-links">
-            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
-            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
-            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
-            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
-            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
-        </div>
-
-        <!-- 底部信息 -->
-        <div class="footer-meta">
-            <span class="location">
-                <i class="fas fa-map-pin"></i> 上海 · 中国
-            </span>
-            <span class="status">
-                <span class="status-dot"></span>
-                开放合作
-            </span>
-            <span>© 2026 Kael</span>
-        </div>
-
     </div>
 
-    <!-- ===== 粒子脚本 ===== -->
+    <!-- ===== 上传进度浮窗 ===== -->
+    <div class="upload-overlay" id="uploadOverlay">
+        <div class="title">
+            <span><i class="fas fa-cloud-upload-alt"></i> 上传中</span>
+            <span class="close" id="uploadClose"><i class="fas fa-times"></i></span>
+        </div>
+        <div class="file-name" id="uploadFileName">file.txt</div>
+        <div class="progress-bar"><div class="fill" id="uploadProgressFill"></div></div>
+        <div class="status-text" id="uploadStatus">准备中...</div>
+    </div>
+
+    <!-- ===== Toast 容器 ===== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ============================================ -->
+    <!-- JavaScript 核心逻辑 -->
+    <!-- ============================================ -->
     <script>
-        (function() {
-            const canvas = document.getElementById('particles-canvas');
-            const ctx = canvas.getContext('2d');
+        // ================================================================
+        //  配置
+        // ================================================================
+        const API_BASE = 'https://api.whitezero.top'; // 您的 API 地址
+        const STORAGE_KEY = 'wz_token';
 
-            let width, height;
-            let particles = [];
-            const PARTICLE_COUNT = 70;
-            const MAX_SPEED = 0.35;
-            const CONNECTION_DIST = 140;
+        // ================================================================
+        //  工具函数
+        // ================================================================
+        function getToken() { return localStorage.getItem(STORAGE_KEY); }
 
-            // 颜色方案 (柔和紫蓝)
-            const colors = [
-                'rgba(139, 92, 246, ',
-                'rgba(99, 102, 241, ',
-                'rgba(59, 130, 246, ',
-                'rgba(168, 85, 247, '
-            ];
+        function setToken(t) { if (t) localStorage.setItem(STORAGE_KEY, t);
+            else localStorage.removeItem(STORAGE_KEY); }
 
-            function resize() {
-                width = window.innerWidth;
-                height = window.innerHeight;
-                canvas.width = width;
-                canvas.height = height;
-            }
+        function getUser() {
+            try { return JSON.parse(atob(getToken()?.split('.')[1] || '')); } catch { return null; }
+        }
 
-            class Particle {
-                constructor() {
-                    this.x = Math.random() * width;
-                    this.y = Math.random() * height;
-                    this.vx = (Math.random() - 0.5) * MAX_SPEED * 2;
-                    this.vy = (Math.random() - 0.5) * MAX_SPEED * 2;
-                    this.radius = Math.random() * 2.8 + 1.2;
-                    this.colorIndex = Math.floor(Math.random() * colors.length);
-                    this.opacity = Math.random() * 0.6 + 0.2;
+        function isAdmin() {
+            const u = getUser();
+            return u && u.role === 'admin';
+        }
+
+        function formatSize(bytes) {
+            if (!bytes || bytes === 0) return '0 B';
+            const k = 1024,
+                sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        function formatTime(ts) {
+            if (!ts) return '-';
+            const d = new Date(ts);
+            return d.toLocaleString('zh-CN', { hour12: false });
+        }
+
+        function getFileIcon(name, isFolder) {
+            if (isFolder) return 'fa-folder folder';
+            const ext = name.split('.').pop().toLowerCase();
+            const map = {
+                'png': 'fa-image',
+                'jpg': 'fa-image',
+                'jpeg': 'fa-image',
+                'gif': 'fa-image',
+                'svg': 'fa-image',
+                'webp': 'fa-image',
+                'mp4': 'fa-video',
+                'avi': 'fa-video',
+                'mkv': 'fa-video',
+                'mov': 'fa-video',
+                'mp3': 'fa-music',
+                'wav': 'fa-music',
+                'flac': 'fa-music',
+                'pdf': 'fa-file-pdf',
+                'doc': 'fa-file-word',
+                'docx': 'fa-file-word',
+                'xls': 'fa-file-excel',
+                'xlsx': 'fa-file-excel',
+                'ppt': 'fa-file-powerpoint',
+                'pptx': 'fa-file-powerpoint',
+                'zip': 'fa-file-archive',
+                'rar': 'fa-file-archive',
+                '7z': 'fa-file-archive',
+                'tar': 'fa-file-archive',
+                'gz': 'fa-file-archive',
+                'js': 'fa-file-code',
+                'ts': 'fa-file-code',
+                'html': 'fa-file-code',
+                'css': 'fa-file-code',
+                'json': 'fa-file-code',
+                'py': 'fa-file-code',
+                'java': 'fa-file-code',
+                'go': 'fa-file-code',
+                'rs': 'fa-file-code',
+                'txt': 'fa-file-alt',
+                'md': 'fa-file-alt',
+                'log': 'fa-file-alt',
+            };
+            return map[ext] || 'fa-file';
+        }
+
+        // ================================================================
+        //  API 请求封装
+        // ================================================================
+        async function apiRequest(method, path, body, isFormData = false) {
+            const url = API_BASE + path;
+            const headers = {};
+            const token = getToken();
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+            if (!isFormData) headers['Content-Type'] = 'application/json';
+
+            const options = {
+                method,
+                headers,
+                body: isFormData ? body : (body ? JSON.stringify(body) : undefined),
+            };
+            const res = await fetch(url, options);
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) {
+                if (res.status === 401) {
+                    setToken(null);
+                    location.reload();
                 }
+                throw new Error(data.message || data.error || `请求失败 (${res.status})`);
+            }
+            return data;
+        }
 
-                update() {
-                    this.x += this.vx;
-                    this.y += this.vy;
+        // ================================================================
+        //  Toast 通知
+        // ================================================================
+        function showToast(msg, type = 'info', duration = 3500) {
+            const container = document.getElementById('toastContainer');
+            const icons = {
+                info: 'fa-info-circle',
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                warning: 'fa-exclamation-triangle'
+            };
+            const colors = {
+                info: 'var(--primary)',
+                success: '#22c55e',
+                error: '#ef4444',
+                warning: '#f59e0b'
+            };
+            const el = document.createElement('div');
+            el.className = `toast ${type}`;
+            el.innerHTML = `
+            <span class="toast-icon" style="color:${colors[type] || colors.info}"><i class="fas ${icons[type] || icons.info}"></i></span>
+            <span class="toast-msg">${msg}</span>
+            <span class="toast-close"><i class="fas fa-times"></i></span>
+          `;
+            el.querySelector('.toast-close').addEventListener('click', () => el.remove());
+            container.appendChild(el);
+            setTimeout(() => { if (el.parentNode) el.remove(); }, duration);
+        }
 
-                    // 边界反弹 + 柔和回弹
-                    if (this.x < 0 || this.x > width) {
-                        this.vx *= -1;
-                        this.x = Math.min(Math.max(this.x, 0), width);
+        // ================================================================
+        //  登录逻辑
+        // ================================================================
+        const loginPage = document.getElementById('loginPage');
+        const mainApp = document.getElementById('mainApp');
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const loginError = document.getElementById('loginError');
+
+        // 检查是否已登录
+        if (getToken()) {
+            const u = getUser();
+            if (u) {
+                loginPage.classList.add('hidden');
+                mainApp.classList.remove('hidden');
+                mainApp.style.display = 'flex';
+                initApp();
+            } else {
+                setToken(null);
+            }
+        }
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value.trim();
+            if (!username || !password) {
+                loginError.textContent = '请输入用户名和密码';
+                return;
+            }
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = '<span class="spinner"></span> 登录中...';
+            loginError.textContent = '';
+
+            try {
+                const data = await apiRequest('POST', '/api/login', { username, password });
+                if (data.token) {
+                    setToken(data.token);
+                    const u = getUser();
+                    if (u) {
+                        loginPage.classList.add('hidden');
+                        mainApp.classList.remove('hidden');
+                        mainApp.style.display = 'flex';
+                        initApp();
+                        showToast('登录成功，欢迎回来！', 'success');
+                    } else {
+                        throw new Error('无效的令牌');
                     }
-                    if (this.y < 0 || this.y > height) {
-                        this.vy *= -1;
-                        this.y = Math.min(Math.max(this.y, 0), height);
+                } else {
+                    throw new Error(data.message || '登录失败');
+                }
+            } catch (err) {
+                loginError.textContent = err.message || '登录失败，请检查网络';
+                showToast(err.message || '登录失败', 'error');
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> 登 录';
+            }
+        });
+
+        // ================================================================
+        //  应用初始化
+        // ================================================================
+        let currentUser = null;
+        let currentView = 'files'; // 'files' | 'admin'
+        let currentPath = ''; // 相对于用户根目录的路径
+
+        async function initApp() {
+            const u = getUser();
+            if (!u) { logout(); return; }
+            currentUser = u;
+            document.getElementById('avatarLetter').textContent = u.username.charAt(0).toUpperCase();
+            document.getElementById('sidebarUsername').textContent = u.username;
+            document.getElementById('sidebarRole').textContent = u.role === 'admin' ? '管理员' : '用户';
+
+            // 显示管理员入口
+            const adminLink = document.getElementById('adminNavLink');
+            if (u.role === 'admin') {
+                adminLink.classList.remove('hidden');
+            } else {
+                adminLink.classList.add('hidden');
+            }
+
+            // 导航点击
+            document.querySelectorAll('.sidebar nav a').forEach(el => {
+                el.addEventListener('click', () => {
+                    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+                    el.classList.add('active');
+                    const view = el.dataset.view;
+                    if (view === 'admin') {
+                        if (currentUser.role !== 'admin') { showToast('权限不足', 'error'); return; }
+                        switchView('admin');
+                    } else {
+                        switchView('files');
                     }
-
-                    // 偶尔随机微动，增加自然感
-                    if (Math.random() < 0.005) {
-                        this.vx += (Math.random() - 0.5) * 0.08;
-                        this.vy += (Math.random() - 0.5) * 0.08;
-                        // 限制速度范围
-                        const sp = Math.hypot(this.vx, this.vy);
-                        if (sp > MAX_SPEED * 1.8) {
-                            this.vx = (this.vx / sp) * MAX_SPEED * 1.2;
-                            this.vy = (this.vy / sp) * MAX_SPEED * 1.2;
-                        }
-                    }
-                }
-
-                draw() {
-                    ctx.beginPath();
-                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-                    const color = colors[this.colorIndex] + this.opacity + ')';
-                    ctx.fillStyle = color;
-                    ctx.fill();
-                }
-            }
-
-            function initParticles() {
-                particles = [];
-                for (let i = 0; i < PARTICLE_COUNT; i++) {
-                    particles.push(new Particle());
-                }
-            }
-
-            function drawConnections() {
-                for (let i = 0; i < particles.length; i++) {
-                    for (let j = i + 1; j < particles.length; j++) {
-                        const dx = particles[i].x - particles[j].x;
-                        const dy = particles[i].y - particles[j].y;
-                        const dist = Math.hypot(dx, dy);
-                        if (dist < CONNECTION_DIST) {
-                            const alpha = (1 - dist / CONNECTION_DIST) * 0.3;
-                            ctx.beginPath();
-                            ctx.moveTo(particles[i].x, particles[i].y);
-                            ctx.lineTo(particles[j].x, particles[j].y);
-                            ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
-                            ctx.lineWidth = 0.8;
-                            ctx.stroke();
-                        }
-                    }
-                }
-            }
-
-            function animate() {
-                ctx.clearRect(0, 0, width, height);
-
-                // 更新 & 绘制粒子
-                for (const p of particles) {
-                    p.update();
-                    p.draw();
-                }
-
-                // 绘制连线
-                drawConnections();
-
-                requestAnimationFrame(animate);
-            }
-
-            // 初始化
-            resize();
-            initParticles();
-            animate();
-
-            // 窗口缩放自适应
-            window.addEventListener('resize', () => {
-                resize();
-                // 重置粒子位置防止溢出
-                for (const p of particles) {
-                    p.x = Math.min(Math.max(p.x, 0), width);
-                    p.y = Math.min(Math.max(p.y, 0), height);
-                }
+                });
             });
 
-            // 鼠标交互：粒子对鼠标位置有轻微反应 (可选)
-            let mouseX = null,
-                mouseY = null;
-            window.addEventListener('mousemove', (e) => {
-                mouseX = e.clientX;
-                mouseY = e.clientY;
-                // 给附近粒子一点推力
-                for (const p of particles) {
-                    const dx = p.x - mouseX;
-                    const dy = p.y - mouseY;
-                    const dist = Math.hypot(dx, dy);
-                    if (dist < 120) {
-                        const force = (120 - dist) / 120 * 0.02;
-                        p.vx += (dx / dist) * force;
-                        p.vy += (dy / dist) * force;
+            // 退出
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // 上传
+            document.getElementById('uploadBtn').addEventListener('click', triggerUpload);
+
+            // 新建文件夹
+            document.getElementById('newFolderBtn').addEventListener('click', createFolder);
+
+            // 刷新
+            document.getElementById('refreshBtn').addEventListener('click', () => {
+                if (currentView === 'files') loadFiles();
+                else loadUsers();
+            });
+
+            // 关闭上传浮窗
+            document.getElementById('uploadClose').addEventListener('click', () => {
+                document.getElementById('uploadOverlay').classList.remove('active');
+            });
+
+            // 默认加载文件视图
+            switchView('files');
+        }
+
+        // ================================================================
+        //  视图切换
+        // ================================================================
+        function switchView(view) {
+            currentView = view;
+            const fileArea = document.getElementById('fileArea');
+            const adminPanel = document.getElementById('adminPanel');
+            const breadcrumb = document.getElementById('breadcrumbPath');
+
+            if (view === 'admin') {
+                fileArea.classList.add('hidden');
+                adminPanel.classList.remove('hidden');
+                breadcrumb.textContent = '管理后台';
+                loadUsers();
+            } else {
+                fileArea.classList.remove('hidden');
+                adminPanel.classList.add('hidden');
+                breadcrumb.textContent = '我的文件';
+                loadFiles();
+            }
+        }
+
+        // ================================================================
+        //  文件管理
+        // ================================================================
+        async function loadFiles() {
+            const grid = document.getElementById('fileGrid');
+            grid.innerHTML =
+                '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>';
+
+            try {
+                const data = await apiRequest('GET', '/api/files' + (currentPath ? '?path=' + encodeURIComponent(currentPath) :
+                ''));
+                renderFiles(data.files || []);
+            } catch (err) {
+                grid.innerHTML =
+                    `<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>加载失败：${err.message}</p></div>`;
+                showToast('加载文件失败：' + err.message, 'error');
+            }
+        }
+
+        function renderFiles(files) {
+            const grid = document.getElementById('fileGrid');
+            if (!files || files.length === 0) {
+                grid.innerHTML = `
+              <div class="empty-state">
+                <i class="fas fa-folder-open"></i>
+                <p>此目录为空，上传文件或新建文件夹吧</p>
+              </div>
+            `;
+                return;
+            }
+
+            // 按文件夹优先排序
+            files.sort((a, b) => {
+                if (a.isFolder && !b.isFolder) return -1;
+                if (!a.isFolder && b.isFolder) return 1;
+                return a.name.localeCompare(b.name);
+            });
+
+            let html = '';
+            for (const f of files) {
+                const icon = getFileIcon(f.name, f.isFolder);
+                const size = f.isFolder ? '-' : formatSize(f.size);
+                const time = formatTime(f.lastModified);
+                html += `
+              <div class="file-card" data-name="${f.name}" data-folder="${f.isFolder}">
+                <div class="icon ${f.isFolder ? 'folder' : ''}"><i class="fas ${icon}"></i></div>
+                <div class="name truncate" title="${f.name}">${f.name}</div>
+                <div class="meta">${size} · ${time}</div>
+                <div class="file-actions">
+                  ${f.isFolder ? `<button class="open-folder" title="打开"><i class="fas fa-folder-open"></i> 打开</button>` :
+                    `<button class="download-file" title="下载"><i class="fas fa-download"></i> 下载</button>`}
+                  <button class="delete-file danger" title="删除"><i class="fas fa-trash"></i> 删除</button>
+                </div>
+              </div>
+            `;
+            }
+            grid.innerHTML = html;
+
+            // 事件绑定
+            grid.querySelectorAll('.open-folder').forEach(btn => {
+                btn.closest('.file-card').addEventListener('dblclick', () => {
+                    const name = btn.closest('.file-card').dataset.name;
+                    openFolder(name);
+                });
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const name = btn.closest('.file-card').dataset.name;
+                    openFolder(name);
+                });
+            });
+
+            grid.querySelectorAll('.download-file').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const name = btn.closest('.file-card').dataset.name;
+                    downloadFile(name);
+                });
+            });
+
+            grid.querySelectorAll('.delete-file').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const name = btn.closest('.file-card').dataset.name;
+                    const isFolder = btn.closest('.file-card').dataset.folder === 'true';
+                    deleteFile(name, isFolder);
+                });
+            });
+
+            // 双击文件夹
+            grid.querySelectorAll('.file-card').forEach(card => {
+                card.addEventListener('dblclick', () => {
+                    if (card.dataset.folder === 'true') {
+                        openFolder(card.dataset.name);
+                    } else {
+                        downloadFile(card.dataset.name);
                     }
+                });
+            });
+        }
+
+        function openFolder(name) {
+            currentPath = currentPath ? currentPath + '/' + name : name;
+            document.getElementById('breadcrumbPath').textContent = '我的文件 / ' + currentPath;
+            loadFiles();
+        }
+
+        // 返回上级（通过面包屑点击）
+        document.getElementById('breadcrumbPath').addEventListener('click', function() {
+            if (currentView === 'admin') return;
+            if (!currentPath) return;
+            const parts = currentPath.split('/');
+            parts.pop();
+            currentPath = parts.join('/');
+            document.getElementById('breadcrumbPath').textContent = currentPath ? '我的文件 / ' + currentPath : '我的文件';
+            loadFiles();
+        });
+
+        // ================================================================
+        //  下载文件
+        // ================================================================
+        function downloadFile(name) {
+            const token = getToken();
+            const path = currentPath ? currentPath + '/' + name : name;
+            const url = API_BASE + '/api/download?path=' + encodeURIComponent(path);
+            // 使用隐藏的 a 标签下载
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = name;
+            a.style.display = 'none';
+            // 添加 token 到 header 无法用 a 标签，改用 fetch + blob
+            fetch(url, {
+                headers: { 'Authorization': 'Bearer ' + token }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('下载失败');
+                return res.blob();
+            })
+            .then(blob => {
+                const url2 = URL.createObjectURL(blob);
+                const a2 = document.createElement('a');
+                a2.href = url2;
+                a2.download = name;
+                document.body.appendChild(a2);
+                a2.click();
+                document.body.removeChild(a2);
+                URL.revokeObjectURL(url2);
+                showToast('下载成功：' + name, 'success');
+            })
+            .catch(err => {
+                showToast('下载失败：' + err.message, 'error');
+            });
+        }
+
+        // ================================================================
+        //  删除文件/文件夹
+        // ================================================================
+        async function deleteFile(name, isFolder) {
+            const path = currentPath ? currentPath + '/' + name : name;
+            if (!confirm(`确定要删除 ${isFolder ? '文件夹' : '文件'}「${name}」吗？此操作不可恢复！`)) return;
+
+            try {
+                await apiRequest('DELETE', '/api/delete', { path });
+                showToast(`已删除「${name}」`, 'success');
+                loadFiles();
+            } catch (err) {
+                showToast('删除失败：' + err.message, 'error');
+            }
+        }
+
+        // ================================================================
+        //  上传文件 (支持多文件)
+        // ================================================================
+        function triggerUpload() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.multiple = true;
+            input.accept = '*/*';
+            input.onchange = (e) => {
+                const files = e.target.files;
+                if (files.length === 0) return;
+                handleUpload(files);
+            };
+            input.click();
+        }
+
+        async function handleUpload(fileList) {
+            const overlay = document.getElementById('uploadOverlay');
+            const progressFill = document.getElementById('uploadProgressFill');
+            const statusText = document.getElementById('uploadStatus');
+            const fileName = document.getElementById('uploadFileName');
+
+            overlay.classList.add('active');
+
+            const total = fileList.length;
+            let completed = 0;
+            const errors = [];
+
+            for (let i = 0; i < total; i++) {
+                const file = fileList[i];
+                fileName.textContent = `(${i+1}/${total}) ${file.name}`;
+                statusText.textContent = '上传中...';
+                progressFill.style.width = '0%';
+
+                const formData = new FormData();
+                formData.append('file', file);
+                if (currentPath) formData.append('path', currentPath);
+
+                try {
+                    const token = getToken();
+                    const res = await fetch(API_BASE + '/api/upload', {
+                        method: 'POST',
+                        headers: { 'Authorization': 'Bearer ' + token },
+                        body: formData,
+                    });
+
+                    // 手动解析进度（无法精确，用模拟）
+                    let progress = 0;
+                    const interval = setInterval(() => {
+                        progress = Math.min(progress + 5, 90);
+                        progressFill.style.width = progress + '%';
+                    }, 150);
+
+                    if (!res.ok) {
+                        const errData = await res.json().catch(() => ({}));
+                        throw new Error(errData.message || `上传失败 (${res.status})`);
+                    }
+                    clearInterval(interval);
+                    progressFill.style.width = '100%';
+                    statusText.textContent = `✅ ${file.name} 上传完成`;
+                    completed++;
+                    showToast(`「${file.name}」上传成功`, 'success');
+
+                    // 等待一下再继续
+                    await new Promise(r => setTimeout(r, 300));
+
+                } catch (err) {
+                    errors.push(`${file.name}: ${err.message}`);
+                    statusText.textContent = `❌ ${file.name} 上传失败`;
+                    showToast(`「${file.name}」上传失败：${err.message}`, 'error');
                 }
+            }
+
+            // 完成
+            if (errors.length === 0) {
+                statusText.textContent = `✅ 全部 ${total} 个文件上传完成！`;
+                progressFill.style.width = '100%';
+            } else {
+                statusText.textContent = `⚠️ 完成 ${total - errors.length}/${total}，${errors.length} 个失败`;
+            }
+
+            setTimeout(() => {
+                overlay.classList.remove('active');
+                loadFiles();
+            }, 2000);
+        }
+
+        // ================================================================
+        //  新建文件夹
+        // ================================================================
+        async function createFolder() {
+            const name = prompt('请输入新文件夹名称：');
+            if (!name || name.trim() === '') return;
+            const folderName = name.trim();
+            const path = currentPath ? currentPath + '/' + folderName : folderName;
+
+            try {
+                await apiRequest('POST', '/api/folder', { path });
+                showToast(`文件夹「${folderName}」已创建`, 'success');
+                loadFiles();
+            } catch (err) {
+                showToast('创建失败：' + err.message, 'error');
+            }
+        }
+
+        // ================================================================
+        //  用户管理 (管理员)
+        // ================================================================
+        async function loadUsers() {
+            const tbody = document.getElementById('userTableBody');
+            tbody.innerHTML =
+                '<tr><td colspan="4" class="text-center" style="padding:30px;color:var(--text-secondary);"><i class="fas fa-spinner fa-spin"></i> 加载中...</td></tr>';
+
+            try {
+                const data = await apiRequest('GET', '/api/admin/users');
+                renderUsers(data.users || []);
+            } catch (err) {
+                tbody.innerHTML =
+                    `<tr><td colspan="4" class="text-center" style="padding:30px;color:#ef4444;">加载失败：${err.message}</td></tr>`;
+                showToast('加载用户列表失败：' + err.message, 'error');
+            }
+        }
+
+        function renderUsers(users) {
+            const tbody = document.getElementById('userTableBody');
+            if (!users || users.length === 0) {
+                tbody.innerHTML =
+                    '<tr><td colspan="4" class="text-center" style="padding:30px;color:var(--text-secondary);">暂无用户</td></tr>';
+                return;
+            }
+
+            let html = '';
+            for (const u of users) {
+                const isSelf = u.username === currentUser.username;
+                html += `
+              <tr>
+                <td><strong>${u.username}</strong> ${isSelf ? '<span style="font-size:11px;color:var(--text-secondary);">(我)</span>' : ''}</td>
+                <td><span class="status-badge">${u.role === 'admin' ? '管理员' : '用户'}</span></td>
+                <td><span class="status-badge">${u.active ? '正常' : '停用'}</span></td>
+                <td>
+                  <div class="user-actions">
+                    <button class="reset-pwd" data-user="${u.username}" title="重置密码"><i class="fas fa-key"></i> 重置</button>
+                    ${!isSelf ? `<button class="delete-user danger" data-user="${u.username}" title="删除用户"><i class="fas fa-user-times"></i> 删除</button>` : ''}
+                  </div>
+                </td>
+              </tr>
+            `;
+            }
+            tbody.innerHTML = html;
+
+            // 重置密码
+            tbody.querySelectorAll('.reset-pwd').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const username = btn.dataset.user;
+                    const newPwd = prompt(`重置用户「${username}」的密码，请输入新密码：`);
+                    if (!newPwd || newPwd.trim() === '') return;
+                    try {
+                        await apiRequest('PUT', '/api/admin/users/' + username + '/password', { password: newPwd
+                                .trim() });
+                        showToast(`用户「${username}」密码已重置`, 'success');
+                    } catch (err) {
+                        showToast('重置失败：' + err.message, 'error');
+                    }
+                });
             });
 
-            window.addEventListener('mouseleave', () => {
-                mouseX = null;
-                mouseY = null;
+            // 删除用户
+            tbody.querySelectorAll('.delete-user').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const username = btn.dataset.user;
+                    if (!confirm(`确定要删除用户「${username}」吗？此操作不可恢复！`)) return;
+                    try {
+                        await apiRequest('DELETE', '/api/admin/users/' + username);
+                        showToast(`用户「${username}」已删除`, 'success');
+                        loadUsers();
+                    } catch (err) {
+                        showToast('删除失败：' + err.message, 'error');
+                    }
+                });
             });
+        }
 
-        })();
+        // ================================================================
+        //  退出登录
+        // ================================================================
+        function logout() {
+            setToken(null);
+            currentUser = null;
+            currentPath = '';
+            loginPage.classList.remove('hidden');
+            mainApp.classList.add('hidden');
+            mainApp.style.display = 'none';
+            document.getElementById('loginUser').value = '';
+            document.getElementById('loginPass').value = '';
+            document.getElementById('loginError').textContent = '';
+            showToast('已退出登录', 'info');
+        }
+
+        // ================================================================
+        //  键盘快捷键
+        // ================================================================
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                document.getElementById('uploadOverlay').classList.remove('active');
+            }
+            if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
+                e.preventDefault();
+                if (currentView === 'files') loadFiles();
+                else loadUsers();
+            }
+        });
+
+        // ================================================================
+        //  初始化检查
+        // ================================================================
+        console.log('WhiteZero 网盘 v1.0');
+        console.log('API:', API_BASE);
+        console.log('当前用户:', getUser());
     </script>
-
 </body>
 </html>
