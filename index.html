@@ -1,1 +1,605 @@
-Hello World！
+Hello World！<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>档案 · 个人主页</title>
+    <!-- Font Awesome 6 (免费图标库) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ===== 全局重置 & 基础 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0b0d15;
+            padding: 1.5rem;
+            /* 动态渐变背景 */
+            background: radial-gradient(ellipse at 20% 50%, #0f172a 0%, #020617 100%);
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ===== 动态粒子画布 (背景) ===== */
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+            /* 让鼠标事件穿透 */;
+        }
+
+        /* ===== 主卡片容器 ===== */
+        .profile-card {
+            position: relative;
+            z-index: 1;
+            max-width: 880px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(24px) saturate(180%);
+            -webkit-backdrop-filter: blur(24px) saturate(180%);
+            border-radius: 3.5rem;
+            padding: 3rem 3.2rem;
+            box-shadow:
+                0 40px 80px rgba(0, 0, 0, 0.7),
+                inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            transition: transform 0.3s ease, box-shadow 0.4s ease;
+            animation: cardFloat 6s ease-in-out infinite;
+        }
+
+        @keyframes cardFloat {
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        /* ===== 头像区域 ===== */
+        .avatar-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+            margin-bottom: 2.2rem;
+        }
+
+        .avatar {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #3b82f6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 12px 40px rgba(99, 102, 241, 0.35);
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .avatar:hover {
+            transform: scale(1.05) rotate(-2deg);
+        }
+
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.15);
+        }
+
+        /* 如果没有图片，用文字占位 */
+        .avatar .initials {
+            font-size: 3.2rem;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+            user-select: none;
+        }
+
+        .avatar-badge {
+            position: absolute;
+            bottom: 4px;
+            right: 4px;
+            background: #10b981;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid #0b0d15;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.5);
+        }
+
+        /* ===== 标题信息 ===== */
+        .title-group h1 {
+            font-size: 2.6rem;
+            font-weight: 700;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.3rem;
+        }
+
+        .title-group .tagline {
+            display: inline-block;
+            font-size: 1rem;
+            font-weight: 500;
+            color: rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.06);
+            padding: 0.35rem 1.2rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            backdrop-filter: blur(4px);
+            letter-spacing: 0.3px;
+        }
+
+        .title-group .tagline i {
+            margin-right: 6px;
+            color: #8b5cf6;
+        }
+
+        /* ===== 分隔装饰 ===== */
+        .divider {
+            width: 60px;
+            height: 3px;
+            background: linear-gradient(90deg, #8b5cf6, #3b82f6);
+            border-radius: 6px;
+            margin: 1.6rem 0 1.8rem 0;
+            opacity: 0.7;
+        }
+
+        /* ===== 简介 ===== */
+        .bio {
+            font-size: 1.08rem;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.7);
+            max-width: 580px;
+            margin-bottom: 2.2rem;
+            font-weight: 400;
+        }
+
+        .bio strong {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        /* ===== 技能标签 ===== */
+        .skills {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6rem 0.9rem;
+            margin-bottom: 2.6rem;
+        }
+
+        .skills span {
+            font-size: 0.8rem;
+            font-weight: 500;
+            padding: 0.4rem 1.2rem;
+            border-radius: 40px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+            color: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(4px);
+            transition: all 0.25s ease;
+            letter-spacing: 0.2px;
+        }
+
+        .skills span:hover {
+            background: rgba(139, 92, 246, 0.18);
+            border-color: rgba(139, 92, 246, 0.3);
+            color: #fff;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(139, 92, 246, 0.15);
+        }
+
+        /* ===== 社交链接 ===== */
+        .social-links {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.8rem;
+        }
+
+        .social-links a {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            backdrop-filter: blur(4px);
+        }
+
+        .social-links a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            transform: translateY(-4px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .social-links a .label {
+            display: none;
+        }
+
+        /* 个别品牌颜色 (悬浮时) */
+        .social-links a:hover .fa-github {
+            color: #f0f6fc;
+        }
+        .social-links a:hover .fa-twitter {
+            color: #1d9bf0;
+        }
+        .social-links a:hover .fa-linkedin-in {
+            color: #0a66c2;
+        }
+        .social-links a:hover .fa-instagram {
+            color: #e4405f;
+        }
+        .social-links a:hover .fa-youtube {
+            color: #ff0000;
+        }
+
+        /* ===== 底部信息 ===== */
+        .footer-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.2rem;
+            padding-top: 1.6rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        .footer-meta .location i {
+            margin-right: 6px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+
+        .footer-meta .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulseDot 2s ease-in-out infinite;
+        }
+
+        @keyframes pulseDot {
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.85);
+            }
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 700px) {
+            .profile-card {
+                padding: 2rem 1.6rem;
+                border-radius: 2.4rem;
+            }
+            .avatar-wrapper {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1.2rem;
+            }
+            .avatar {
+                width: 96px;
+                height: 96px;
+            }
+            .avatar .initials {
+                font-size: 2.6rem;
+            }
+            .title-group h1 {
+                font-size: 2rem;
+            }
+            .bio {
+                font-size: 0.98rem;
+            }
+            .social-links a {
+                width: 42px;
+                height: 42px;
+                font-size: 1rem;
+            }
+            .footer-meta {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        @media (max-width: 450px) {
+            .profile-card {
+                padding: 1.6rem 1.2rem;
+            }
+            .skills span {
+                font-size: 0.7rem;
+                padding: 0.3rem 0.9rem;
+            }
+            .title-group h1 {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* ===== 滚动条美化 (可选) ===== */
+        ::-webkit-scrollbar {
+            width: 6px;
+            background: #0b0d15;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2a2f45;
+            border-radius: 20px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #4b4f6a;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== 动态粒子背景 (Canvas) ===== -->
+    <canvas id="particles-canvas"></canvas>
+
+    <!-- ===== 主卡片 ===== -->
+    <div class="profile-card">
+
+        <!-- 头像 + 名称 -->
+        <div class="avatar-wrapper">
+            <div class="avatar">
+                <!-- 用首字母占位 (也可替换为 <img src="avatar.jpg" alt="头像" />) -->
+                <span class="initials">K</span>
+                <div class="avatar-badge">
+                    <i class="fas fa-check"></i>
+                </div>
+            </div>
+            <div class="title-group">
+                <h1>Kael · 凯尔</h1>
+                <span class="tagline">
+                    <i class="fas fa-code"></i> 全栈 · 创意开发者
+                </span>
+            </div>
+        </div>
+
+        <!-- 分隔线 -->
+        <div class="divider"></div>
+
+        <!-- 简介 -->
+        <div class="bio">
+            构建 <strong>数字体验</strong> 与 <strong>交互艺术</strong>。<br />
+            热爱 TypeScript、Rust 与 3D 视觉。现居上海，自由职业。
+        </div>
+
+        <!-- 技能标签 -->
+        <div class="skills">
+            <span>React</span>
+            <span>Next.js</span>
+            <span>TypeScript</span>
+            <span>Rust</span>
+            <span>Three.js</span>
+            <span>Tailwind</span>
+            <span>Figma</span>
+            <span>WebGL</span>
+        </div>
+
+        <!-- 社交链接 -->
+        <div class="social-links">
+            <a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a>
+            <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+            <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+        </div>
+
+        <!-- 底部信息 -->
+        <div class="footer-meta">
+            <span class="location">
+                <i class="fas fa-map-pin"></i> 上海 · 中国
+            </span>
+            <span class="status">
+                <span class="status-dot"></span>
+                开放合作
+            </span>
+            <span>© 2026 Kael</span>
+        </div>
+
+    </div>
+
+    <!-- ===== 粒子脚本 ===== -->
+    <script>
+        (function() {
+            const canvas = document.getElementById('particles-canvas');
+            const ctx = canvas.getContext('2d');
+
+            let width, height;
+            let particles = [];
+            const PARTICLE_COUNT = 70;
+            const MAX_SPEED = 0.35;
+            const CONNECTION_DIST = 140;
+
+            // 颜色方案 (柔和紫蓝)
+            const colors = [
+                'rgba(139, 92, 246, ',
+                'rgba(99, 102, 241, ',
+                'rgba(59, 130, 246, ',
+                'rgba(168, 85, 247, '
+            ];
+
+            function resize() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+
+            class Particle {
+                constructor() {
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.vx = (Math.random() - 0.5) * MAX_SPEED * 2;
+                    this.vy = (Math.random() - 0.5) * MAX_SPEED * 2;
+                    this.radius = Math.random() * 2.8 + 1.2;
+                    this.colorIndex = Math.floor(Math.random() * colors.length);
+                    this.opacity = Math.random() * 0.6 + 0.2;
+                }
+
+                update() {
+                    this.x += this.vx;
+                    this.y += this.vy;
+
+                    // 边界反弹 + 柔和回弹
+                    if (this.x < 0 || this.x > width) {
+                        this.vx *= -1;
+                        this.x = Math.min(Math.max(this.x, 0), width);
+                    }
+                    if (this.y < 0 || this.y > height) {
+                        this.vy *= -1;
+                        this.y = Math.min(Math.max(this.y, 0), height);
+                    }
+
+                    // 偶尔随机微动，增加自然感
+                    if (Math.random() < 0.005) {
+                        this.vx += (Math.random() - 0.5) * 0.08;
+                        this.vy += (Math.random() - 0.5) * 0.08;
+                        // 限制速度范围
+                        const sp = Math.hypot(this.vx, this.vy);
+                        if (sp > MAX_SPEED * 1.8) {
+                            this.vx = (this.vx / sp) * MAX_SPEED * 1.2;
+                            this.vy = (this.vy / sp) * MAX_SPEED * 1.2;
+                        }
+                    }
+                }
+
+                draw() {
+                    ctx.beginPath();
+                    ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                    const color = colors[this.colorIndex] + this.opacity + ')';
+                    ctx.fillStyle = color;
+                    ctx.fill();
+                }
+            }
+
+            function initParticles() {
+                particles = [];
+                for (let i = 0; i < PARTICLE_COUNT; i++) {
+                    particles.push(new Particle());
+                }
+            }
+
+            function drawConnections() {
+                for (let i = 0; i < particles.length; i++) {
+                    for (let j = i + 1; j < particles.length; j++) {
+                        const dx = particles[i].x - particles[j].x;
+                        const dy = particles[i].y - particles[j].y;
+                        const dist = Math.hypot(dx, dy);
+                        if (dist < CONNECTION_DIST) {
+                            const alpha = (1 - dist / CONNECTION_DIST) * 0.3;
+                            ctx.beginPath();
+                            ctx.moveTo(particles[i].x, particles[i].y);
+                            ctx.lineTo(particles[j].x, particles[j].y);
+                            ctx.strokeStyle = `rgba(139, 92, 246, ${alpha})`;
+                            ctx.lineWidth = 0.8;
+                            ctx.stroke();
+                        }
+                    }
+                }
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, width, height);
+
+                // 更新 & 绘制粒子
+                for (const p of particles) {
+                    p.update();
+                    p.draw();
+                }
+
+                // 绘制连线
+                drawConnections();
+
+                requestAnimationFrame(animate);
+            }
+
+            // 初始化
+            resize();
+            initParticles();
+            animate();
+
+            // 窗口缩放自适应
+            window.addEventListener('resize', () => {
+                resize();
+                // 重置粒子位置防止溢出
+                for (const p of particles) {
+                    p.x = Math.min(Math.max(p.x, 0), width);
+                    p.y = Math.min(Math.max(p.y, 0), height);
+                }
+            });
+
+            // 鼠标交互：粒子对鼠标位置有轻微反应 (可选)
+            let mouseX = null,
+                mouseY = null;
+            window.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+                // 给附近粒子一点推力
+                for (const p of particles) {
+                    const dx = p.x - mouseX;
+                    const dy = p.y - mouseY;
+                    const dist = Math.hypot(dx, dy);
+                    if (dist < 120) {
+                        const force = (120 - dist) / 120 * 0.02;
+                        p.vx += (dx / dist) * force;
+                        p.vy += (dy / dist) * force;
+                    }
+                }
+            });
+
+            window.addEventListener('mouseleave', () => {
+                mouseX = null;
+                mouseY = null;
+            });
+
+        })();
+    </script>
+
+</body>
+</html>
